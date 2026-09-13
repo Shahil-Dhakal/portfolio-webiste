@@ -2,7 +2,6 @@ import 'dotenv/config';
 import express from 'express';
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import requireAuth from '../middleware/auth.js';
 
 cloudinary.config({
@@ -13,16 +12,11 @@ cloudinary.config({
 
 const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif']);
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'portfolio-projects',
-    allowed_formats: ['png', 'jpg', 'jpeg', 'webp', 'gif']
-  }
-});
-
+// Keep the uploaded file in memory instead of writing to disk — the raw
+// buffer goes straight to Cloudinary, nothing touches this server's
+// filesystem (which gets wiped on every Render restart anyway).
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (!ALLOWED_TYPES.has(file.mimetype)) {
@@ -32,11 +26,27 @@ const upload = multer({
   }
 });
 
+function uploadBufferToCloudinary(buffer) {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: 'portfolio-projects' },
+      (err, result) => (err ? reject(err) : resolve(result))
+    );
+    stream.end(buffer);
+  });
+}
+
 const router = express.Router();
 
-router.post('/', requireAuth, upload.single('image'), (req, res) => {
+router.post('/', requireAuth, upload.single('image'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  res.status(201).json({ url: req.file.path });
+
+  try {
+    const result = await uploadBufferToCloudinary(req.file.buffer);
+    res.status(201).json({ url: result.secure_url });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to upload image to Cloudinary' });
+  }
 });
 
 router.use((err, req, res, next) => {
