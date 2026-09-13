@@ -1,0 +1,153 @@
+/* Writings section — landing categories, per-category list, single piece.
+   Reuses tokens from style.css (--navy, --accent, --bg, --radius, --shadow,
+   --font-display, --font-body). Nothing in style.css/chat.css is touched. */
+
+/* ---- Landing page: three category boxes ---- */
+.writing-categories {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1rem 2rem 4rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.writing-category-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2.25rem 1.75rem;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.writing-category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 32px rgba(15,25,35,0.14);
+}
+
+.writing-category-square {
+  width: 16px;
+  height: 16px;
+  background: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.writing-category-name {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.writing-category-desc {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  line-height: 1.7;
+}
+
+.writing-category-count {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+/* ---- Category list page ---- */
+.writing-list {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 1rem 2rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.writing-list-item {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.75rem 2rem;
+  display: block;
+}
+
+.writing-list-title {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 0.4rem;
+}
+
+.writing-list-excerpt {
+  font-size: 0.87rem;
+  color: var(--text);
+  line-height: 1.7;
+  margin-bottom: 0.6rem;
+}
+
+.writing-list-meta {
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--text-light);
+}
+
+.writing-empty {
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.9rem;
+  padding: 2rem 0;
+}
+
+/* ---- Single piece page ---- */
+.writing-article {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 1rem 2rem 5rem;
+}
+
+.writing-article-back {
+  display: inline-flex;
+  margin-bottom: 2rem;
+}
+
+.writing-article-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw + 1rem, 2.4rem);
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 0.5rem;
+}
+
+.writing-article-meta {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--text-light);
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+}
+
+.writing-article-body {
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.9;
+  white-space: pre-line;
+}
+
+@media (max-width: 800px) {
+  .writing-categories { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .writing-categories,
+  .writing-list,
+  .writing-article {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
