@@ -1,6 +1,5 @@
 import Profile from '../models/Profile.js';
 import Project from '../models/Project.js';
-import ResumeEntry from '../models/ResumeEntry.js';
 import Writing from '../models/Writing.js';
 import fs from 'fs';
 import path from 'path';
@@ -88,16 +87,6 @@ function formatProjects(projects) {
     .join('\n');
 }
 
-function formatResume(entries) {
-  if (!entries.length) return 'No resume entries listed.';
-  return entries
-    .map((e) => {
-      const bullets = (e.descriptions || []).map((d) => `  • ${d}`).join('\n');
-      return `- [${e.section}] ${e.position} at ${e.company} (${e.dateRange}), ${e.location}\n${bullets}`;
-    })
-    .join('\n');
-}
-
 function formatWritings(writings) {
   if (!writings.length) return null;
   return writings
@@ -111,10 +100,9 @@ function formatKnowledge(chunks) {
 }
 
 export async function buildSystemPrompt(question) {
-  const [profile, projects, resumeEntries, writings] = await Promise.all([
+  const [profile, projects, writings] = await Promise.all([
     Profile.findOne(),
     Project.find().sort('order'),
-    ResumeEntry.find().sort('order'),
     retrieveRelevantWritings(question)
   ]);
 
@@ -125,7 +113,7 @@ export async function buildSystemPrompt(question) {
 
 Rules you must follow strictly:
 - Only answer using the information provided below in the CONTEXT section. Do not invent, assume, or guess any fact about ${profile?.firstName || profile?.name || 'him'} that is not stated there.
-- Only discuss topics related to ${profile?.firstName || profile?.name || 'him'} — his background, skills, projects, resume, and creative writing. If asked about anything unrelated (general knowledge, other people, coding help unrelated to his work, etc.), politely decline and steer the conversation back to asking about him.
+- Only discuss topics related to ${profile?.firstName || profile?.name || 'him'} — his background, skills, projects, and creative writing. If asked about anything unrelated (general knowledge, other people, coding help unrelated to his work, etc.), politely decline and steer the conversation back to asking about him.
 - If the CONTEXT doesn't contain the answer to a question about him, say so in a casual, in-character way - something like "Boss hasn't briefed me on that one yet, you'll have to ask him directly" or "That's above my clearance level - haven't been updated on that." Never invent an answer just to avoid saying you don't know.
 - Keep replies conversational and fairly brief, matching the tone of a real chat - not a formal report.
 - Speak about him in the first person is NOT required - refer to him by name or "he", or "the boss", as a personal assistant would, not as if you are him.
@@ -137,9 +125,6 @@ ${formatProfile(profile)}
 
 --- PROJECTS ---
 ${formatProjects(projects)}
-
---- RESUME ---
-${formatResume(resumeEntries)}
 ${writingsSection ? `\n--- RELEVANT WRITINGS (matched to the current question) ---\n${writingsSection}` : ''}
 ${knowledgeSection ? `\n--- ADDITIONAL KNOWLEDGE (matched to the current question) ---\n${knowledgeSection}` : ''}`;
 }
